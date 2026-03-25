@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import WebCalendar from './WebCalendar';
+import InstallPWAButton from '../../components/InstallPWAButton';
 
 const DEPARTMENTS = [
     { "branchName": "INSTRUMENTATION AND CONTROL ENGINEERING" },
@@ -197,7 +199,8 @@ export default function Dashboard() {
                 <div className="text-2xl font-bold font-serif text-[#8C4A32] tracking-tight">
                     <a href="/">Calendrify</a>
                 </div>
-                <div>
+                <div className="flex items-center gap-4">
+                    <InstallPWAButton />
                     <a href="/about" className="font-semibold text-[#8C5E45] hover:text-[#6E3A27] transition-colors text-lg">About</a>
                 </div>
             </div>
