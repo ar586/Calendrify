@@ -9,6 +9,7 @@ export interface IUser extends Document {
         refreshToken?: string;
         expiryDate?: number;
     };
+    calendarLinked?: boolean;
     profile: {
         department?: string;
         degree?: string;
@@ -24,6 +25,7 @@ const UserSchema: Schema = new Schema(
         email: { type: String, required: true, unique: true },
         googleId: { type: String, required: false, unique: true, sparse: true },
         password: { type: String },
+        calendarLinked: { type: Boolean, default: false },
         tokens: {
             accessToken: { type: String },
             refreshToken: { type: String },

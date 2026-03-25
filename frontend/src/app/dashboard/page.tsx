@@ -97,6 +97,11 @@ export default function Dashboard() {
                         semester: data.user.profile?.semester || '',
                         section: data.user.profile?.section || ''
                     });
+
+                    // Force profile editing if critical info missing
+                    if (!data.user.profile?.degree || !data.user.profile?.department) {
+                        setIsEditing(true);
+                    }
                 }
             })
             .catch(() => router.push('/'));
@@ -434,17 +439,17 @@ export default function Dashboard() {
 
                                             {(() => {
                                                 const action = syncMode === 'gcal' ? executeSyncFor : saveToWebCalendar;
-                                                const isGoogleConnected = user?.googleId && !user.googleId.startsWith('local_') && !user.googleId.startsWith('guest_');
+                                                const isCalendarLinked = user?.calendarLinked || !!user?.tokens?.refreshToken;
 
-                                                if (syncMode === 'gcal' && !isGoogleConnected) {
+                                                if (syncMode === 'gcal' && !isCalendarLinked) {
                                                     return (
                                                         <div className="bg-[#EAE4D3] p-8 rounded-xl border border-[#D0C5AE] text-center mt-4">
                                                             <h4 className="text-xl font-serif text-[#8C4A32] font-bold mb-3">Google Calendar Locked</h4>
-                                                            <p className="text-[#8C5E45] mb-6">You are currently using an email account. To inject these exams and classes directly into your Google Calendar, you must link your account.</p>
+                                                            <p className="text-[#8C5E45] mb-6">You need to grant Calendar permissions to inject these exams and classes directly into your Google Calendar.</p>
                                                             <button
                                                                 onClick={async () => {
                                                                     const token = localStorage.getItem('calendrify_token');
-                                                                    const res = await fetch(`http://localhost:5000/api/auth/google/url?guestToken=${token}`);
+                                                                    const res = await fetch(`http://localhost:5000/api/auth/google/sync-url?guestToken=${token}`);
                                                                     const data = await res.json();
                                                                     if (data.url) window.location.href = data.url;
                                                                 }}
@@ -584,7 +589,9 @@ export default function Dashboard() {
                                 </div>
                             </div>
                             <div className="mt-8 flex justify-end gap-3">
-                                <button onClick={() => setIsEditing(false)} className="px-5 py-2.5 text-[#5E3A21] hover:bg-[#EAE4D3] rounded-xl transition">Cancel</button>
+                                {user?.profile?.degree && user?.profile?.department && (
+                                    <button onClick={() => setIsEditing(false)} className="px-5 py-2.5 text-[#5E3A21] hover:bg-[#EAE4D3] rounded-xl transition">Cancel</button>
+                                )}
                                 <button onClick={handleSaveProfile} className="px-5 py-2.5 bg-[#8C4A32] text-white rounded-xl shadow-sm hover:bg-[#6E3A27] transition">Save Changes</button>
                             </div>
                             <p className="mt-4 text-xs text-[#8C5E45]">Note: Must perfectly match the spelling in the imported timetable JSON to find events.</p>

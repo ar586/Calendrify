@@ -2,8 +2,6 @@ import { Router } from 'express';
 import { google } from 'googleapis';
 import User from '../models/User';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import bcrypt from 'bcryptjs';
 
 const router = Router();
 
@@ -13,79 +11,34 @@ const getOAuth2Client = () => new google.auth.OAuth2(
     process.env.GOOGLE_REDIRECT_URI
 );
 
-// Register with Email/Password
-router.post('/register', async (req, res) => {
-    try {
-        const { email, password, degree, department, semester, section, specialization } = req.body;
-
-        const existingUser = await User.findOne({ email });
-        if (existingUser) return res.status(400).json({ error: 'Email already exists' });
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new User({
-            email,
-            password: hashedPassword,
-            googleId: `local_${crypto.randomUUID()}`,
-            profile: { degree, department, semester, section, specialization }
-        });
-        await user.save();
-
-        const sessionToken = jwt.sign(
-            { userId: user._id, email: user.email },
-            process.env.JWT_SECRET || 'secret',
-            { expiresIn: '7d' }
-        );
-
-        res.json({ token: sessionToken, user });
-    } catch (error) {
-        console.error('Registration failed:', error);
-        res.status(500).json({ error: 'Failed to create account' });
-    }
-});
-
-// Login with Email/Password
-router.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email });
-
-        if (!user) {
-            return res.status(400).json({ error: 'Invalid credentials' });
-        }
-
-        if (user.password) {
-            const isMatch = await bcrypt.compare(password, user.password);
-            if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
-        } else if (!user.password && user.googleId) {
-            return res.status(400).json({ error: 'Please use Google Login for this account' });
-        }
-
-        const sessionToken = jwt.sign(
-            { userId: user._id, email: user.email },
-            process.env.JWT_SECRET || 'secret',
-            { expiresIn: '7d' }
-        );
-
-        res.json({ token: sessionToken, user });
-    } catch (error) {
-        console.error('Login failed:', error);
-        res.status(500).json({ error: 'Login failed' });
-    }
-});
-
-// Get Google Auth URL
+// Get Google Auth URL (Login Only - No Calendar scopes)
 router.get('/google/url', (req, res) => {
-    const { guestToken } = req.query;
     const oauth2Client = getOAuth2Client();
     const url = oauth2Client.generateAuthUrl({
-        access_type: 'offline', // Crucial: get refresh token
+        access_type: 'online', // Only need identity for login
+        scope: [
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/userinfo.email'
+        ],
+        state: 'login' // Identifier for callback route
+    });
+    res.json({ url });
+});
+
+// Get Google Auth Sync URL (Requests Calendar Permission)
+router.get('/google/sync-url', (req, res) => {
+    const { guestToken } = req.query; // Existing session token
+    const oauth2Client = getOAuth2Client();
+    const url = oauth2Client.generateAuthUrl({
+        access_type: 'offline', // Crucial to get refresh token for background sync
         scope: [
             'https://www.googleapis.com/auth/userinfo.profile',
             'https://www.googleapis.com/auth/userinfo.email',
             'https://www.googleapis.com/auth/calendar'
         ],
-        prompt: 'consent', // Forces consent screen to always grant refresh_token
-        state: guestToken as string || 'default_state'
+        prompt: 'consent', // Forces consent screen to ensure refresh_token is yielded
+        include_granted_scopes: true,
+        state: guestToken ? `sync_${guestToken}` : 'sync'
     });
     res.json({ url });
 });
@@ -109,34 +62,32 @@ router.get('/google/callback', async (req, res) => {
         }
 
         let user = null;
+        let isSyncFlow = false;
 
-        // If a guestToken was passed in state, try to find and upgrade that user!
-        if (state && state !== 'default_state') {
+        // Check if this was a sync attempt initiated from the dashboard
+        if (state && state.startsWith('sync_')) {
+            isSyncFlow = true;
+            const tokenStr = state.split('sync_')[1];
             try {
-                const decoded: any = jwt.verify(state, process.env.JWT_SECRET || 'secret');
+                const decoded: any = jwt.verify(tokenStr, process.env.JWT_SECRET || 'secret');
                 user = await User.findById(decoded.userId);
             } catch (err) {
-                console.error('Invalid guest token during callback loop');
+                console.error('Invalid token during sync callback');
             }
         }
 
-        // If we found a guest/local user, update them. Otherwise find or create normally.
-        if (user && (user.googleId.startsWith('guest_') || user.googleId.startsWith('local_'))) {
-            // Check if this google account already exists differently
-            const existingGoogleUser = await User.findOne({ googleId: userInfo.data.id });
-            if (existingGoogleUser) {
-                // If it exists, we technically should merge them. For simplicity, we just use the existing one.
-                // Or we migrate the UserEventMappings. For MVP, just update the guest user properties.
-                // Wait, if existingGoogleUser exists, Mongoose unique constraint will fail when we set googleId
-                // Let's just use the existing account and orphan the guest session
-                user = existingGoogleUser;
-            } else {
-                user.googleId = userInfo.data.id;
-            }
-        } else {
+        // Find or create the Google User
+        if (!user) {
             user = await User.findOne({ googleId: userInfo.data.id });
-            if (!user) {
-                user = new User({ email: userInfo.data.email, googleId: userInfo.data.id });
+        }
+
+        // If they still don't exist, create a new user entirely
+        if (!user) {
+            user = new User({ email: userInfo.data.email, googleId: userInfo.data.id });
+        } else {
+            // Ensure googleId is set if they somehow had another type
+            if (!user.googleId || user.googleId.startsWith('local_') || user.googleId.startsWith('guest_')) {
+                user.googleId = userInfo.data.id;
             }
         }
 
@@ -147,6 +98,11 @@ router.get('/google/callback', async (req, res) => {
             user.tokens.refreshToken = tokens.refresh_token;
         }
         user.tokens.expiryDate = tokens.expiry_date || user.tokens.expiryDate;
+
+        // If this was a sync flow, or if they just supplied a refresh token, we consider calendar linked
+        if (isSyncFlow || tokens.refresh_token) {
+            user.calendarLinked = true;
+        }
 
         await user.save();
 
