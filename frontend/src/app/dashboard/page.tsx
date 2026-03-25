@@ -191,8 +191,18 @@ export default function Dashboard() {
     if (!user) return <div className="flex h-screen items-center justify-center bg-[#F6F5ED]"><div className="w-10 h-10 border-4 border-[#82442A] border-t-transparent rounded-full animate-spin"></div></div>;
 
     return (
-        <div className="min-h-screen bg-[#F6F5ED] py-10 px-4 relative font-sans text-[#3B2516]">
-            <div className="max-w-4xl mx-auto bg-[#FBFBFA] p-8 rounded-2xl shadow-sm border border-[#E0D8C3]">
+        <main className="min-h-screen bg-[#F6F5ED] pt-28 pb-24 px-4 relative font-sans text-[#3B2516]">
+            {/* Header */}
+            <div className="absolute top-0 left-0 w-full p-6 md:px-8 flex justify-between items-center z-50">
+                <div className="text-2xl font-bold font-serif text-[#8C4A32] tracking-tight">
+                    <a href="/">Calendrify</a>
+                </div>
+                <div>
+                    <a href="/about" className="font-semibold text-[#8C5E45] hover:text-[#6E3A27] transition-colors text-lg">About</a>
+                </div>
+            </div>
+
+            <div className="max-w-4xl mx-auto bg-[#FBFBFA] p-8 rounded-2xl shadow-sm border border-[#E0D8C3] z-10 relative">
                 <h1 className="text-4xl font-serif font-bold mb-8 text-[#5A2C1A] tracking-tight">Welcome, {user.email}</h1>
 
                 <div className="bg-[#EAE4D3] border border-[#D0C5AE] p-8 rounded-2xl relative overflow-hidden">
@@ -578,6 +588,19 @@ export default function Dashboard() {
                     </div>
                 )}
             </div>
-        </div>
+
+            {/* Footer */}
+            <div className="absolute bottom-0 left-0 w-full p-6 md:px-8 flex justify-between items-center text-sm text-[#8C5E45] z-50">
+                <div className="font-medium">&copy; {new Date().getFullYear()} Calendrify</div>
+                <div className="font-medium flex items-center gap-2">
+                    Made by <a href="https://www.linkedin.com/in/aryan-anand-4aba06309/" target="_blank" rel="noopener noreferrer" className="font-bold hover:text-[#8C4A32] flex items-center gap-1">
+                        Aryan Anand
+                        <svg className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </main>
     );
 }
