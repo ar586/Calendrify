@@ -200,8 +200,9 @@ export default function Dashboard() {
                     <a href="/">Calendrify</a>
                 </div>
                 <div className="flex items-center gap-4">
-                    <InstallPWAButton />
+                    <button onClick={() => { localStorage.removeItem('calendrify_token'); router.push('/login'); }} className="font-semibold text-[#8C5E45] hover:text-[#6E3A27] transition-colors text-lg">Log Out</button>
                     <a href="/about" className="font-semibold text-[#8C5E45] hover:text-[#6E3A27] transition-colors text-lg">About</a>
+                    <InstallPWAButton />
                 </div>
             </div>
 
@@ -433,13 +434,13 @@ export default function Dashboard() {
 
                                             {(() => {
                                                 const action = syncMode === 'gcal' ? executeSyncFor : saveToWebCalendar;
-                                                const isGuest = user?.googleId?.startsWith('guest_');
+                                                const isGoogleConnected = user?.googleId && !user.googleId.startsWith('local_') && !user.googleId.startsWith('guest_');
 
-                                                if (syncMode === 'gcal' && isGuest) {
+                                                if (syncMode === 'gcal' && !isGoogleConnected) {
                                                     return (
                                                         <div className="bg-[#EAE4D3] p-8 rounded-xl border border-[#D0C5AE] text-center mt-4">
                                                             <h4 className="text-xl font-serif text-[#8C4A32] font-bold mb-3">Google Calendar Locked</h4>
-                                                            <p className="text-[#8C5E45] mb-6">You are currently using a local offline profile. To inject these exams and classes directly into your Google Calendar, you must link your account.</p>
+                                                            <p className="text-[#8C5E45] mb-6">You are currently using an email account. To inject these exams and classes directly into your Google Calendar, you must link your account.</p>
                                                             <button
                                                                 onClick={async () => {
                                                                     const token = localStorage.getItem('calendrify_token');

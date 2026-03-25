@@ -3,6 +3,7 @@ import { google } from 'googleapis';
 import User from '../models/User';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
 const router = Router();
 
@@ -12,15 +13,19 @@ const getOAuth2Client = () => new google.auth.OAuth2(
     process.env.GOOGLE_REDIRECT_URI
 );
 
-// Guest Login (No Google Auth required initially)
-router.post('/guest', async (req, res) => {
+// Register with Email/Password
+router.post('/register', async (req, res) => {
     try {
-        const { degree, department, semester, section, specialization } = req.body;
-        const guestId = `guest_${crypto.randomUUID()}`;
+        const { email, password, degree, department, semester, section, specialization } = req.body;
 
+        const existingUser = await User.findOne({ email });
+        if (existingUser) return res.status(400).json({ error: 'Email already exists' });
+
+        const hashedPassword = await bcrypt.hash(password, 10);
         const user = new User({
-            email: `${guestId}@calendrify.local`,
-            googleId: guestId,
+            email,
+            password: hashedPassword,
+            googleId: `local_${crypto.randomUUID()}`,
             profile: { degree, department, semester, section, specialization }
         });
         await user.save();
@@ -33,8 +38,38 @@ router.post('/guest', async (req, res) => {
 
         res.json({ token: sessionToken, user });
     } catch (error) {
-        console.error('Guest login failed:', error);
-        res.status(500).json({ error: 'Failed to create guest session' });
+        console.error('Registration failed:', error);
+        res.status(500).json({ error: 'Failed to create account' });
+    }
+});
+
+// Login with Email/Password
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ error: 'Invalid credentials' });
+        }
+
+        if (user.password) {
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
+        } else if (!user.password && user.googleId) {
+            return res.status(400).json({ error: 'Please use Google Login for this account' });
+        }
+
+        const sessionToken = jwt.sign(
+            { userId: user._id, email: user.email },
+            process.env.JWT_SECRET || 'secret',
+            { expiresIn: '7d' }
+        );
+
+        res.json({ token: sessionToken, user });
+    } catch (error) {
+        console.error('Login failed:', error);
+        res.status(500).json({ error: 'Login failed' });
     }
 });
 
@@ -85,8 +120,8 @@ router.get('/google/callback', async (req, res) => {
             }
         }
 
-        // If we found a guest user, update them. Otherwise find or create normally.
-        if (user && user.googleId.startsWith('guest_')) {
+        // If we found a guest/local user, update them. Otherwise find or create normally.
+        if (user && (user.googleId.startsWith('guest_') || user.googleId.startsWith('local_'))) {
             // Check if this google account already exists differently
             const existingGoogleUser = await User.findOne({ googleId: userInfo.data.id });
             if (existingGoogleUser) {
@@ -96,7 +131,6 @@ router.get('/google/callback', async (req, res) => {
                 // Let's just use the existing account and orphan the guest session
                 user = existingGoogleUser;
             } else {
-                user.email = userInfo.data.email;
                 user.googleId = userInfo.data.id;
             }
         } else {

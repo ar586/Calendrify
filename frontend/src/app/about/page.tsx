@@ -11,8 +11,8 @@ export default function AboutPage() {
                     <a href="/">Calendrify</a>
                 </div>
                 <div className="flex items-center gap-4">
-                    <InstallPWAButton />
                     <a href="/about" className="font-semibold text-[#8C5E45] hover:text-[#6E3A27] transition-colors text-lg">About</a>
+                    <InstallPWAButton />
                 </div>
             </div>
 

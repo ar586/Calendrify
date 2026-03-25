@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IUser extends Document {
     email: string;
     googleId: string;
+    password?: string;
     tokens: {
         accessToken?: string;
         refreshToken?: string;
@@ -21,7 +22,8 @@ export interface IUser extends Document {
 const UserSchema: Schema = new Schema(
     {
         email: { type: String, required: true, unique: true },
-        googleId: { type: String, required: true, unique: true },
+        googleId: { type: String, required: false, unique: true, sparse: true },
+        password: { type: String },
         tokens: {
             accessToken: { type: String },
             refreshToken: { type: String },
