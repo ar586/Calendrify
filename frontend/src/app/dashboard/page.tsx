@@ -6,23 +6,6 @@ import Image from 'next/image';
 import WebCalendar from './WebCalendar';
 import InstallPWAButton from '../../components/InstallPWAButton';
 
-const DEPARTMENTS = [
-    { "branchName": "INSTRUMENTATION AND CONTROL ENGINEERING" },
-    { "branchName": "COMPUTER SCIENCE AND ENGINEERING" },
-    { "branchName": "CIVIL ENGINEERING" },
-    { "branchName": "INFORMATION TECHNOLOGY" },
-    { "branchName": "MECHANICAL ENGINEERING" },
-    { "branchName": "ELECTRONICS AND COMMUNICATION ENGINEERING" },
-    { "branchName": "MECHANICAL ENGINEERING(WEST)" },
-    { "branchName": "GEOINFORMATICS" },
-    { "branchName": "COMPUTER SCIENCE AND ENGINEERING(EAST)" },
-    { "branchName": "ELECTRICAL ENGINEERING" },
-    { "branchName": "BIOLOGICAL SCIENCES AND ENGINEERING" },
-    { "branchName": "MANAGEMENT STUDIES" },
-    { "branchName": "HUMANITIES AND SOCIAL SCIENCES" },
-    { "branchName": "ELECTRONICS AND COMMUNICATION ENGINEERING(EAST)" }
-];
-
 const DEGREES = [
     "B.Tech.",
     "M.Tech (FULL TIME)",
@@ -31,12 +14,75 @@ const DEGREES = [
     "MASTER OF ARTS"
 ];
 
+const BRANCHES = [
+    { "branchName": "VLSI DESIGN AND TECHNOLOGY", "shortName": "VSLI" },
+    { "branchName": "ELECTRONICS AND COMMUNICATION ENGINEERING (INTERNET OF THINGS)", "shortName": "EIOT" },
+    { "branchName": "ELECTRONICS AND COMMUNICATION ENGINEERING", "shortName": "ECE" },
+    { "branchName": "ELECTRICAL ENGINEERING", "shortName": "EE" },
+    { "branchName": "COMPUTER SCIENCE AND ENGINEERING (INTERNET OF THINGS)", "shortName": "CSEIOT" },
+    { "branchName": "MECHANICAL ENGINEERING (ELECTRIC VEHICLES)", "shortName": "ME(EV)" },
+    { "branchName": "CIVIL ENGINEERING", "shortName": "CIVIL" },
+    { "branchName": "COMPUTER SCIENCE AND ENGINEERING", "shortName": "CSE" },
+    { "branchName": "INFORMATION TECHNOLOGY", "shortName": "IT" },
+    { "branchName": "MATHEMATICS AND COMPUTING", "shortName": "MAC" },
+    { "branchName": "BACHELOR OF ARCHITECTURE", "shortName": "B ARCH" },
+    { "branchName": "INFORMATION TECHNOLOGY (NETWORK AND INFORMATION SECURITY)", "shortName": "ITNS" },
+    { "branchName": "COMPUTER SCIENCE AND ENGINEERING (BIG DATA ANALYTICS)", "shortName": "CSE(DA)" },
+    { "branchName": "COMPUTER SCIENCE AND ENGINEERING (ARTIFICIAL INTELLIGENCE)", "shortName": "CSAI" },
+    { "branchName": "GEOINFORMATICS", "shortName": "GEOINFORMATICS" },
+    { "branchName": "COMPUTER SCIENCE AND ENGINEERING (DATA SCIENCE)", "shortName": "CSDS" },
+    { "branchName": "INSTRUMENTATION AND CONTROL ENGINEERING", "shortName": "ICE" },
+    { "branchName": "ELECTRONICS AND COMMUNICATION ENGINEERING (ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING)", "shortName": "ECE(AI)" },
+    { "branchName": "BIO TECHNOLOGY", "shortName": "BT" },
+    { "branchName": "MECHANICAL ENGINEERING", "shortName": "ME" }
+].sort((a, b) => a.branchName.localeCompare(b.branchName));
+
+const CustomSelect = ({ value, onChange, options, placeholder }: { value: string, onChange: (val: string) => void, options: { label: string, value: string }[], placeholder: string }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+        <div className="relative w-full">
+            <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); setIsOpen(!isOpen); }}
+                className={`w-full p-3 border rounded-xl outline-none text-left shadow-sm transition flex justify-between items-center ${isOpen ? 'border-[#8C4A32] ring-2 ring-[#8C4A32]/20 bg-[#FCFBFA]' : 'border-[#D0C5AE] hover:border-[#8C4A32] bg-[#FCFBFA]'
+                    }`}
+            >
+                <span className={value ? 'text-[#5E3A21] font-medium truncate pr-4' : 'text-gray-400'}>
+                    {value ? options.find(o => o.value === value)?.label || value : placeholder}
+                </span>
+                <svg className={`w-4 h-4 flex-shrink-0 text-[#8C5E45] transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+
+            {isOpen && (
+                <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
+                    <div className="absolute z-50 w-full mt-1 bg-[#FCFBFA] border border-[#D0C5AE] rounded-xl shadow-xl max-h-60 overflow-y-auto py-1 ring-1 ring-black/5">
+                        {options.map((opt) => (
+                            <button
+                                key={opt.value}
+                                type="button"
+                                className={`w-full text-left px-4 py-2.5 text-sm hover:bg-[#EAE4D3] transition ${value === opt.value ? 'bg-[#EAE4D3] text-[#8C4A32] font-bold' : 'text-[#5E3A21]'}`}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    onChange(opt.value);
+                                    setIsOpen(false);
+                                }}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
+
 export default function Dashboard() {
     const [user, setUser] = useState<any>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         degree: '',
-        department: '',
         specialization: '',
         semester: '',
         section: ''
@@ -92,14 +138,13 @@ export default function Dashboard() {
                     setUser(data.user);
                     setFormData({
                         degree: data.user.profile?.degree || '',
-                        department: data.user.profile?.department || '',
                         specialization: data.user.profile?.specialization || '',
                         semester: data.user.profile?.semester || '',
                         section: data.user.profile?.section || ''
                     });
 
                     // Force profile editing if critical info missing
-                    if (!data.user.profile?.degree || !data.user.profile?.department) {
+                    if (!data.user.profile?.degree || !data.user.profile?.specialization) {
                         setIsEditing(true);
                     }
                 }
@@ -233,8 +278,8 @@ export default function Dashboard() {
                             <p className="mt-1 text-[#5E3A21] font-medium">{user.profile?.degree || 'Not set'}</p>
                         </div>
                         <div className="bg-[#FCFBFA]/60 p-4 rounded-xl">
-                            <label className="block text-xs font-semibold text-[#5E3A21] uppercase tracking-wider">Department</label>
-                            <p className="mt-1 text-[#5E3A21] font-medium truncate" title={user.profile?.department}>{user.profile?.department || 'Not set'}</p>
+                            <label className="block text-xs font-semibold text-[#5E3A21] uppercase tracking-wider">Branch</label>
+                            <p className="mt-1 text-[#5E3A21] font-medium truncate" title={user.profile?.specialization}>{user.profile?.specialization || 'Not set'}</p>
                         </div>
                         <div className="bg-[#FCFBFA]/60 p-4 rounded-xl">
                             <label className="block text-xs font-semibold text-[#5E3A21] uppercase tracking-wider">Semester</label>
@@ -277,7 +322,7 @@ export default function Dashboard() {
 
                     <div className={syncMode === 'web' ? 'mt-8 pt-6 border-t border-[#D0C5AE]' : ''}>
                         <div className="bg-[#F6F5ED] border border-[#D0C5AE] p-6 rounded-2xl text-center">
-                            {user.profile?.department && user.profile?.section && user.profile?.degree && user.profile?.semester ? (
+                            {user.profile?.specialization && user.profile?.section && user.profile?.degree && user.profile?.semester ? (
                                 <div className="flex flex-col items-center gap-4">
                                     <button
                                         onClick={handlePreviewSync}
@@ -517,79 +562,34 @@ export default function Dashboard() {
                             <h2 className="text-2xl font-serif font-bold text-[#5E3A21] mb-6 text-[#5E3A21]">Edit Profile</h2>
                             <div className="flex flex-col gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-[#5E3A21] mb-1">Degree</label>
-                                    <select
+                                    <label className="block text-sm font-semibold text-[#5E3A21] mb-1">Degree</label>
+                                    <CustomSelect
                                         value={formData.degree}
-                                        onChange={e => setFormData({ ...formData, degree: e.target.value })}
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-[#FCFBFA]"
-                                    >
-                                        <option value="" disabled>Select your degree</option>
-                                        {DEGREES.map(d => (
-                                            <option key={d} value={d}>{d}</option>
-                                        ))}
-                                    </select>
+                                        onChange={val => setFormData({ ...formData, degree: val })}
+                                        options={DEGREES.map(d => ({ label: d, value: d }))}
+                                        placeholder="Select your degree"
+                                    />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-[#5E3A21] mb-1">Department</label>
-                                    <select
-                                        value={formData.department}
-                                        onChange={e => setFormData({ ...formData, department: e.target.value })}
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-[#FCFBFA]"
-                                    >
-                                        <option value="" disabled>Select your department</option>
-                                        {DEPARTMENTS.map(d => (
-                                            <option key={d.branchName} value={d.branchName}>
-                                                {d.branchName}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-[#5E3A21] mb-1">Specialization / Program</label>
-                                    <select
+                                    <label className="block text-sm font-semibold text-[#5E3A21] mb-1">Branch</label>
+                                    <CustomSelect
                                         value={formData.specialization}
-                                        onChange={e => setFormData({ ...formData, specialization: e.target.value })}
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-[#FCFBFA]"
-                                    >
-                                        <option value="" disabled>Select your specialization</option>
-                                        {[
-                                            'COMPUTER SCIENCE AND ENGINEERING',
-                                            'COMPUTER SCIENCE AND ENGINEERING (ARTIFICIAL INTELLIGENCE)',
-                                            'COMPUTER SCIENCE AND ENGINEERING (BIG DATA ANALYTICS)',
-                                            'COMPUTER SCIENCE AND ENGINEERING (DATA SCIENCE)',
-                                            'COMPUTER SCIENCE AND ENGINEERING (INTERNET OF THINGS)',
-                                            'ELECTRONICS AND COMMUNICATION ENGINEERING',
-                                            'ELECTRONICS AND COMMUNICATION ENGINEERING (ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING)',
-                                            'ELECTRONICS ENGINEERING (VLSI DESIGN AND TECHNOLOGY)',
-                                            'ELECTRICAL ENGINEERING',
-                                            'INSTRUMENTATION AND CONTROL ENGINEERING',
-                                            'CIVIL ENGINEERING',
-                                            'MECHANICAL ENGINEERING',
-                                            'MECHANICAL ENGINEERING (ELECTRIC VEHICLES)',
-                                            'INFORMATION TECHNOLOGY',
-                                            'INFORMATION TECHNOLOGY (NETWORK AND INFORMATION SECURITY)',
-                                            'MATHEMATICS AND COMPUTING',
-                                            'GEOINFORMATICS',
-                                            'BIO TECHNOLOGY',
-                                            'BACHELOR OF BUSINESS ADMINISTRATION (HONOURS)',
-                                            'APPLIED PSYCHOLOGY',
-                                            'VLSI DESIGN AND TECHNOLOGY',
-                                        ].map(s => (
-                                            <option key={s} value={s}>{s}</option>
-                                        ))}
-                                    </select>
+                                        onChange={val => setFormData({ ...formData, specialization: val })}
+                                        options={BRANCHES.map(b => ({ label: b.branchName, value: b.branchName }))}
+                                        placeholder="Select your branch"
+                                    />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-[#5E3A21] mb-1">Semester (e.g. 2)</label>
-                                    <input type="text" value={formData.semester} onChange={e => setFormData({ ...formData, semester: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                                    <label className="block text-sm font-semibold text-[#5E3A21] mb-1">Semester (e.g. 2)</label>
+                                    <input type="text" value={formData.semester} onChange={e => setFormData({ ...formData, semester: e.target.value })} className="w-full p-3 border border-[#D0C5AE] rounded-xl focus:ring-2 focus:ring-[#8C4A32] outline-none bg-[#FCFBFA] text-[#5E3A21] font-medium shadow-sm transition hover:border-[#8C4A32] placeholder-gray-400" placeholder="Enter your current semester" />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-[#5E3A21] mb-1">Section (e.g. 2)</label>
-                                    <input type="text" value={formData.section} onChange={e => setFormData({ ...formData, section: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                                    <label className="block text-sm font-semibold text-[#5E3A21] mb-1">Section (e.g. 2)</label>
+                                    <input type="text" value={formData.section} onChange={e => setFormData({ ...formData, section: e.target.value })} className="w-full p-3 border border-[#D0C5AE] rounded-xl focus:ring-2 focus:ring-[#8C4A32] outline-none bg-[#FCFBFA] text-[#5E3A21] font-medium shadow-sm transition hover:border-[#8C4A32] placeholder-gray-400" placeholder="Enter your current section" />
                                 </div>
                             </div>
                             <div className="mt-8 flex justify-end gap-3">
-                                {user?.profile?.degree && user?.profile?.department && (
+                                {user?.profile?.degree && user?.profile?.specialization && (
                                     <button onClick={() => setIsEditing(false)} className="px-5 py-2.5 text-[#5E3A21] hover:bg-[#EAE4D3] rounded-xl transition">Cancel</button>
                                 )}
                                 <button onClick={handleSaveProfile} className="px-5 py-2.5 bg-[#8C4A32] text-white rounded-xl shadow-sm hover:bg-[#6E3A27] transition">Save Changes</button>

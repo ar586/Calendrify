@@ -8,19 +8,19 @@ const router = Router();
 
 router.get('/preview', authMiddleware, async (req: any, res) => {
     const user = req.user;
-    const { degree, department, specialization, semester, section } = user.profile;
+    const { degree, specialization, semester, section } = user.profile;
 
-    if (!degree || !department || !specialization || !semester || !section) {
-        return res.status(400).json({ error: 'Incomplete profile. Please set your Specialization in Edit Profile.' });
+    if (!degree || !specialization || !semester || !section) {
+        return res.status(400).json({ error: 'Incomplete profile. Please set your Branch in Edit Profile.' });
     }
 
-    console.log('SYNC PREVIEW FOR:', { degree, department, specialization, semester, section });
+    console.log('SYNC PREVIEW FOR:', { degree, specialization, semester, section });
 
     try {
         const rawEvents = await AcademicEvent.find({
             $or: [
                 { isGlobal: true },
-                { targetGroups: { $elemMatch: { degree, department, specialization, semester, section } } }
+                { targetGroups: { $elemMatch: { degree, specialization, semester, section } } }
             ]
         });
 
@@ -69,7 +69,7 @@ const getNextDateForDay = (dayName: string, timeString: string) => {
 
 router.post('/execute', authMiddleware, async (req: any, res) => {
     const user = req.user;
-    const { degree, department, specialization, semester, section } = user.profile;
+    const { degree, specialization, semester, section } = user.profile;
     const { selectedEventIds, eventReminders = {} } = req.body;
 
     if (!user.tokens.refreshToken) {
@@ -116,7 +116,7 @@ router.post('/execute', authMiddleware, async (req: any, res) => {
         const allProfileEvents = await AcademicEvent.find({
             $or: [
                 { isGlobal: true },
-                { targetGroups: { $elemMatch: { degree, department, specialization, semester, section } } }
+                { targetGroups: { $elemMatch: { degree, specialization, semester, section } } }
             ]
         });
 
