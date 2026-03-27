@@ -30,7 +30,7 @@ export default function Home() {
         </div>
 
         <button type="button" onClick={async () => {
-          const res = await fetch('http://localhost:5000/api/auth/google/url');
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google/url`);
           const data = await res.json();
           if (data.url) window.location.href = data.url;
         }} className="w-full py-4 text-lg font-bold bg-white text-[#5E3A21] border border-[#D0C5AE] rounded-xl shadow-sm hover:bg-gray-50 transition-all flex justify-center items-center gap-3 mt-4">

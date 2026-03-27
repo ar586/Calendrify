@@ -69,7 +69,7 @@ export default function WebCalendar() {
     const fetchEvents = useCallback(async () => {
         const token = localStorage.getItem('calendrify_token');
         try {
-            const res = await fetch('http://localhost:5000/api/sync/web-events', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sync/web-events`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -85,7 +85,7 @@ export default function WebCalendar() {
     const removeEvent = async (mappingId: string) => {
         const token = localStorage.getItem('calendrify_token');
         try {
-            await fetch(`http://localhost:5000/api/sync/web-events/${mappingId}`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sync/web-events/${mappingId}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -106,7 +106,7 @@ export default function WebCalendar() {
             dStr = `${parts[0].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[2]}`;
         }
         try {
-            const res = await fetch('http://localhost:5000/api/sync/custom-events', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sync/custom-events`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ title: customTitle, date: dStr, start: customStart, end: customEnd })

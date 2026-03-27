@@ -129,7 +129,7 @@ export default function Dashboard() {
         const token = localStorage.getItem('calendrify_token');
         if (!token) return router.push('/');
 
-        fetch('http://localhost:5000/api/user/profile', {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -155,7 +155,7 @@ export default function Dashboard() {
     const handleSaveProfile = async () => {
         const token = localStorage.getItem('calendrify_token');
         try {
-            const res = await fetch('http://localhost:5000/api/user/profile', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`, {
                 method: 'PUT',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -176,7 +176,7 @@ export default function Dashboard() {
         setLoadingSync(true);
         const token = localStorage.getItem('calendrify_token');
         try {
-            const res = await fetch('http://localhost:5000/api/sync/preview', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sync/preview`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
@@ -199,7 +199,7 @@ export default function Dashboard() {
         setLoadingCategory(type);
         const token = localStorage.getItem('calendrify_token');
         try {
-            const res = await fetch('http://localhost:5000/api/sync/execute', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sync/execute`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -226,7 +226,7 @@ export default function Dashboard() {
         setLoadingCategory(type);
         const token = localStorage.getItem('calendrify_token');
         try {
-            const res = await fetch('http://localhost:5000/api/sync/web-save', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sync/web-save`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ selectedEventIds: idsForType })
@@ -494,7 +494,7 @@ export default function Dashboard() {
                                                             <button
                                                                 onClick={async () => {
                                                                     const token = localStorage.getItem('calendrify_token');
-                                                                    const res = await fetch(`http://localhost:5000/api/auth/google/sync-url?guestToken=${token}`);
+                                                                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google/sync-url?guestToken=${token}`);
                                                                     const data = await res.json();
                                                                     if (data.url) window.location.href = data.url;
                                                                 }}
