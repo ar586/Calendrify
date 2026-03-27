@@ -43,3 +43,9 @@ pnpm-debug.log*
 coverage/
 cypress/videos/
 cypress/screenshots/
+
+# Private scraped data (do not commit)
+endsem\ 2026.json
+hajiri.timetables.json
+events.json
+
