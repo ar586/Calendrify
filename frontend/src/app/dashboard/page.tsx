@@ -594,7 +594,7 @@ export default function Dashboard() {
                                 )}
                                 <button onClick={handleSaveProfile} className="px-5 py-2.5 bg-[#8C4A32] text-white rounded-xl shadow-sm hover:bg-[#6E3A27] transition">Save Changes</button>
                             </div>
-                            <p className="mt-4 text-xs text-[#8C5E45]">Note: Must perfectly match the spelling in the imported timetable JSON to find events.</p>
+
                         </div>
                     </div>
                 )}
