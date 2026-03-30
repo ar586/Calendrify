@@ -1,10 +1,16 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import InstallPWAButton from '../components/InstallPWAButton';
 
 export default function Home() {
   const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('calendrify_token');
+    if (token) router.push('/dashboard');
+  }, [router]);
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center p-8 bg-[#F6F5ED] text-[#5E3A21]">

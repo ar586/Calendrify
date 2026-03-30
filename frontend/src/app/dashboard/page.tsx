@@ -250,14 +250,14 @@ export default function Dashboard() {
                     <a href="/">Calendrify</a>
                 </div>
                 <div className="flex items-center gap-4">
-                    <button onClick={() => { localStorage.removeItem('calendrify_token'); router.push('/login'); }} className="font-semibold text-[#8C5E45] hover:text-[#6E3A27] transition-colors text-lg">Log Out</button>
+                    <button onClick={() => { localStorage.removeItem('calendrify_token'); router.push('/'); }} className="font-semibold text-[#8C5E45] hover:text-[#6E3A27] transition-colors text-lg">Log Out</button>
                     <a href="/about" className="font-semibold text-[#8C5E45] hover:text-[#6E3A27] transition-colors text-lg">About</a>
                     <InstallPWAButton />
                 </div>
             </div>
 
             <div className="max-w-4xl mx-auto bg-[#FBFBFA] p-8 rounded-2xl shadow-sm border border-[#E0D8C3] z-10 relative">
-                <h1 className="text-4xl font-serif font-bold mb-8 text-[#5A2C1A] tracking-tight">Welcome, {user.email}</h1>
+                <h1 className="text-4xl font-serif font-bold mb-8 text-[#5A2C1A] tracking-tight">Welcome, {user.name || user.email}</h1>
 
                 <div className="bg-[#EAE4D3] border border-[#D0C5AE] p-8 rounded-2xl relative overflow-hidden">
                     <div className="flex justify-between items-start z-10 relative">
