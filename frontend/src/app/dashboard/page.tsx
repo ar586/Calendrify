@@ -243,36 +243,36 @@ export default function Dashboard() {
     if (!user) return <div className="flex h-screen items-center justify-center bg-[#F6F5ED]"><div className="w-10 h-10 border-4 border-[#82442A] border-t-transparent rounded-full animate-spin"></div></div>;
 
     return (
-        <main className="min-h-screen bg-[#F6F5ED] pt-28 pb-24 px-4 relative font-sans text-[#3B2516]">
+        <main className="min-h-screen bg-[#F6F5ED] pt-20 sm:pt-28 pb-20 sm:pb-24 px-3 sm:px-4 relative font-sans text-[#3B2516]">
             {/* Header */}
-            <div className="absolute top-0 left-0 w-full p-6 md:px-8 flex justify-between items-center z-50">
-                <div className="text-2xl font-bold font-serif text-[#8C4A32] tracking-tight">
+            <div className="absolute top-0 left-0 w-full px-4 py-3 sm:p-6 md:px-8 flex justify-between items-center z-50">
+                <div className="text-xl sm:text-2xl font-bold font-serif text-[#8C4A32] tracking-tight">
                     <a href="/">Calendrify</a>
                 </div>
-                <div className="flex items-center gap-4">
-                    <button onClick={() => { localStorage.removeItem('calendrify_token'); router.push('/'); }} className="font-semibold text-[#8C5E45] hover:text-[#6E3A27] transition-colors text-lg">Log Out</button>
-                    <a href="/about" className="font-semibold text-[#8C5E45] hover:text-[#6E3A27] transition-colors text-lg">About</a>
+                <div className="flex items-center gap-2 sm:gap-4">
+                    <button onClick={() => { localStorage.removeItem('calendrify_token'); router.push('/'); }} className="font-semibold text-[#8C5E45] hover:text-[#6E3A27] transition-colors text-sm sm:text-lg">Log Out</button>
+                    <a href="/about" className="font-semibold text-[#8C5E45] hover:text-[#6E3A27] transition-colors text-sm sm:text-lg">About</a>
                     <InstallPWAButton />
                 </div>
             </div>
 
-            <div className="max-w-4xl mx-auto bg-[#FBFBFA] p-8 rounded-2xl shadow-sm border border-[#E0D8C3] z-10 relative">
-                <h1 className="text-4xl font-serif font-bold mb-8 text-[#5A2C1A] tracking-tight">Welcome, {user.name || user.email}</h1>
+            <div className="max-w-4xl mx-auto bg-[#FBFBFA] p-4 sm:p-8 rounded-2xl shadow-sm border border-[#E0D8C3] z-10 relative">
+                <h1 className="text-2xl sm:text-4xl font-serif font-bold mb-4 sm:mb-8 text-[#5A2C1A] tracking-tight">Welcome, {user.name || user.email}</h1>
 
-                <div className="bg-[#EAE4D3] border border-[#D0C5AE] p-8 rounded-2xl relative overflow-hidden">
-                    <div className="flex justify-between items-start z-10 relative">
+                <div className="bg-[#EAE4D3] border border-[#D0C5AE] p-4 sm:p-8 rounded-2xl relative overflow-hidden">
+                    <div className="flex justify-between items-start z-10 relative gap-3">
                         <div>
-                            <h2 className="text-2xl font-serif font-bold text-[#5A2C1A] mb-2">Student Profile</h2>
-                            <p className="text-[#6D493B] mb-6">Set up your academic details to see your synced college calendar events.</p>
+                            <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#5A2C1A] mb-1 sm:mb-2">Student Profile</h2>
+                            <p className="text-[#6D493B] mb-3 sm:mb-6 text-sm sm:text-base">Set up your academic details to see your synced college calendar events.</p>
                         </div>
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="px-5 py-2.5 bg-[#8C4A32] text-white font-medium rounded-xl shadow-sm hover:bg-[#6E3A27] transition active:scale-95">
+                            className="flex-shrink-0 px-3 py-2 sm:px-5 sm:py-2.5 bg-[#8C4A32] text-white font-medium rounded-xl shadow-sm hover:bg-[#6E3A27] transition active:scale-95 text-sm sm:text-base">
                             Edit Profile
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 z-10 relative">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 z-10 relative">
                         <div className="bg-[#FCFBFA]/60 p-4 rounded-xl">
                             <label className="block text-xs font-semibold text-[#5E3A21] uppercase tracking-wider">Degree</label>
                             <p className="mt-1 text-[#5E3A21] font-medium">{user.profile?.degree || 'Not set'}</p>
@@ -293,17 +293,17 @@ export default function Dashboard() {
                 </div>
 
                 <div className="mt-10 pt-10 border-t border-[#EAE4D3]">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-serif font-bold text-[#5E3A21]">Event Synchronization</h2>
-                        <div className="flex bg-[#EAE4D3] rounded-xl p-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3">
+                        <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#5E3A21]">Event Synchronization</h2>
+                        <div className="flex bg-[#EAE4D3] rounded-xl p-1 self-start sm:self-auto">
                             <button
                                 onClick={() => setSyncMode('web')}
-                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${syncMode === 'web' ? 'bg-[#FCFBFA] shadow text-[#8C4A32]' : 'text-[#8C5E45] hover:text-[#5E3A21]'}`}
-                            > Web Calendar</button>
+                                className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition ${syncMode === 'web' ? 'bg-[#FCFBFA] shadow text-[#8C4A32]' : 'text-[#8C5E45] hover:text-[#5E3A21]'}`}
+                            >Web Calendar</button>
                             <button
                                 onClick={() => setSyncMode('gcal')}
-                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${syncMode === 'gcal' ? 'bg-[#FCFBFA] shadow text-[#8C4A32]' : 'text-[#8C5E45] hover:text-[#5E3A21]'}`}
-                            > Google Calendar</button>
+                                className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition ${syncMode === 'gcal' ? 'bg-[#FCFBFA] shadow text-[#8C4A32]' : 'text-[#8C5E45] hover:text-[#5E3A21]'}`}
+                            >Google Calendar</button>
                         </div>
                     </div>
 
@@ -335,7 +335,7 @@ export default function Dashboard() {
                                         <div className="mt-6 text-left w-full bg-[#FCFBFA] p-6 rounded-xl border border-[#D0C5AE] shadow-sm">
                                             <h3 className="font-semibold text-lg mb-4 text-[#5E3A21]">✓ Found exactly {syncPreview.counts.total} events mapping to your precise combination!</h3>
 
-                                            <div className="grid grid-cols-3 gap-4 mb-6">
+                                            <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
                                                 <div className="bg-blue-50 border border-[#D0C5AE] p-4 rounded-xl text-center">
                                                     <p className="text-4xl font-serif font-bold text-[#5E3A21] text-[#8C4A32]">{syncPreview.counts.classes}</p>
                                                     <p className="text-sm font-medium text-[#5E3A21]">Classes</p>
@@ -508,7 +508,7 @@ export default function Dashboard() {
 
                                                 return (
                                                     <div className="flex flex-col gap-3">
-                                                        <div className="grid grid-cols-3 gap-3">
+                                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                                             <button
                                                                 onClick={() => action('CLASS')}
                                                                 disabled={loadingCategory !== null}
@@ -601,7 +601,7 @@ export default function Dashboard() {
             </div>
 
             {/* Footer */}
-            <div className="absolute bottom-0 left-0 w-full p-6 md:px-8 flex justify-between items-center text-sm text-[#8C5E45] z-50">
+            <div className="absolute bottom-0 left-0 w-full px-4 py-3 sm:p-6 md:px-8 flex justify-between items-center text-xs sm:text-sm text-[#8C5E45] z-50">
                 <div className="font-medium">&copy; {new Date().getFullYear()} Calendrify</div>
                 <div className="font-medium flex items-center gap-2">
                     Made by <a href="https://www.linkedin.com/in/aryan-anand-4aba06309/" target="_blank" rel="noopener noreferrer" className="font-bold hover:text-[#8C4A32] flex items-center gap-1">

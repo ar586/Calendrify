@@ -13,24 +13,24 @@ export default function Home() {
   }, [router]);
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center p-8 bg-[#F6F5ED] text-[#5E3A21]">
+    <main className="relative flex min-h-screen flex-col items-center justify-center p-4 sm:p-8 bg-[#F6F5ED] text-[#5E3A21]">
       {/* Header */}
-      <div className="absolute top-0 left-0 w-full p-6 md:px-8 flex justify-between items-center z-50">
-        <div className="text-2xl font-bold font-serif text-[#8C4A32] tracking-tight">
+      <div className="absolute top-0 left-0 w-full px-4 py-4 sm:p-6 md:px-8 flex justify-between items-center z-50">
+        <div className="text-xl sm:text-2xl font-bold font-serif text-[#8C4A32] tracking-tight">
           <a href="/">Calendrify</a>
         </div>
-        <div className="flex items-center gap-4">
-          <a href="/about" className="font-semibold text-[#8C5E45] hover:text-[#6E3A27] transition-colors text-lg">About</a>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <a href="/about" className="font-semibold text-[#8C5E45] hover:text-[#6E3A27] transition-colors text-sm sm:text-lg">About</a>
           <InstallPWAButton />
         </div>
       </div>
 
-      <div className="z-10 max-w-md w-full flex flex-col items-center gap-8 bg-[#FCFBFA] p-10 rounded-2xl shadow-sm border border-[#D0C5AE] text-center">
+      <div className="z-10 max-w-md w-full flex flex-col items-center gap-6 sm:gap-8 bg-[#FCFBFA] px-6 py-8 sm:p-10 rounded-2xl shadow-sm border border-[#D0C5AE] text-center mx-4">
         <div>
-          <h1 className="text-5xl font-serif font-bold text-[#8C4A32] mb-3">
+          <h1 className="text-4xl sm:text-5xl font-serif font-bold text-[#8C4A32] mb-3">
             Calendrify
           </h1>
-          <p className="text-[#8C5E45] text-lg">
+          <p className="text-[#8C5E45] text-base sm:text-lg">
             Login to setup your profile and generate your academic schedule.
           </p>
         </div>
@@ -39,8 +39,8 @@ export default function Home() {
           const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google/url`);
           const data = await res.json();
           if (data.url) window.location.href = data.url;
-        }} className="w-full py-4 text-lg font-bold bg-white text-[#5E3A21] border border-[#D0C5AE] rounded-xl shadow-sm hover:bg-gray-50 transition-all flex justify-center items-center gap-3 mt-4">
-          <svg className="w-6 h-6" viewBox="0 0 24 24">
+        }} className="w-full py-3 sm:py-4 text-base sm:text-lg font-bold bg-white text-[#5E3A21] border border-[#D0C5AE] rounded-xl shadow-sm hover:bg-gray-50 transition-all flex justify-center items-center gap-3 mt-2 sm:mt-4">
+          <svg className="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
@@ -51,12 +51,12 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <div className="absolute bottom-0 left-0 w-full p-6 md:px-8 flex justify-between items-center text-sm text-[#8C5E45] z-50">
+      <div className="absolute bottom-0 left-0 w-full px-4 py-4 sm:p-6 md:px-8 flex justify-between items-center text-xs sm:text-sm text-[#8C5E45] z-50">
         <div className="font-medium">&copy; {new Date().getFullYear()} Calendrify</div>
         <div className="font-medium flex items-center gap-2">
           Made by <a href="https://www.linkedin.com/in/aryan-anand-4aba06309/" target="_blank" rel="noopener noreferrer" className="font-bold hover:text-[#8C4A32] flex items-center gap-1">
             Aryan Anand
-            <svg className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="w-3 h-3 sm:w-4 sm:h-4 ml-1" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
             </svg>
           </a>
