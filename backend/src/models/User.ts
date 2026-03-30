@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IUser extends Document {
     email: string;
+    name?: string;
     googleId: string;
     password?: string;
     tokens: {
@@ -23,6 +24,7 @@ export interface IUser extends Document {
 const UserSchema: Schema = new Schema(
     {
         email: { type: String, required: true, unique: true },
+        name: { type: String },
         googleId: { type: String, required: false, unique: true, sparse: true },
         password: { type: String },
         calendarLinked: { type: Boolean, default: false },

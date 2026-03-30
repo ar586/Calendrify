@@ -83,12 +83,14 @@ router.get('/google/callback', async (req, res) => {
 
         // If they still don't exist, create a new user entirely
         if (!user) {
-            user = new User({ email: userInfo.data.email, googleId: userInfo.data.id });
+            user = new User({ email: userInfo.data.email, googleId: userInfo.data.id, name: userInfo.data.name });
         } else {
             // Ensure googleId is set if they somehow had another type
             if (!user.googleId || user.googleId.startsWith('local_') || user.googleId.startsWith('guest_')) {
                 user.googleId = userInfo.data.id;
             }
+            // Update name from Google in case it changed
+            if (userInfo.data.name) user.name = userInfo.data.name;
         }
 
         // Update tokens
