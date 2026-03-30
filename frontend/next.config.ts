@@ -3,9 +3,8 @@ import withPWAInit from "@ducanh2912/next-pwa";
 
 const withPWA = withPWAInit({
   dest: "public",
-  disable: false, // Ensure service worker registers even in dev to test
+  disable: false,
   register: true,
-  skipWaiting: true,
 });
 
 const nextConfig: NextConfig = {
