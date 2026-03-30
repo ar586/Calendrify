@@ -53,7 +53,9 @@ export default function Home() {
       {/* Footer */}
       <div className="absolute bottom-0 left-0 w-full px-4 py-4 sm:p-6 md:px-8 flex justify-between items-center text-xs sm:text-sm text-[#8C5E45] z-50">
         <div className="font-medium">&copy; {new Date().getFullYear()} Calendrify</div>
-        <div className="font-medium flex items-center gap-2">
+        <div className="font-medium flex items-center gap-3 sm:gap-4">
+          <a href="/privacy" className="hover:text-[#8C4A32] transition-colors">Privacy Policy</a>
+          <span>·</span>
           Made by <a href="https://www.linkedin.com/in/aryan-anand-4aba06309/" target="_blank" rel="noopener noreferrer" className="font-bold hover:text-[#8C4A32] flex items-center gap-1">
             Aryan Anand
             <svg className="w-3 h-3 sm:w-4 sm:h-4 ml-1" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
