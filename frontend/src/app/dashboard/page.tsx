@@ -243,7 +243,7 @@ export default function Dashboard() {
     if (!user) return <div className="flex h-screen items-center justify-center bg-[#F6F5ED]"><div className="w-10 h-10 border-4 border-[#82442A] border-t-transparent rounded-full animate-spin"></div></div>;
 
     return (
-        <main className="min-h-screen bg-[#F6F5ED] pt-20 sm:pt-28 pb-20 sm:pb-24 px-3 sm:px-4 relative font-sans text-[#3B2516]">
+        <main className="min-h-screen bg-[#F6F5ED] pt-20 sm:pt-28 pb-20 sm:pb-24 px-3 sm:px-4 relative font-sans text-[#3B2516] overflow-x-hidden">
             {/* Header */}
             <div className="absolute top-0 left-0 w-full px-4 py-3 sm:p-6 md:px-8 flex justify-between items-center z-50">
                 <div className="text-xl sm:text-2xl font-bold font-serif text-[#8C4A32] tracking-tight">
@@ -336,17 +336,17 @@ export default function Dashboard() {
                                             <h3 className="font-semibold text-lg mb-4 text-[#5E3A21]">✓ Found exactly {syncPreview.counts.total} events mapping to your precise combination!</h3>
 
                                             <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
-                                                <div className="bg-blue-50 border border-[#D0C5AE] p-4 rounded-xl text-center">
-                                                    <p className="text-4xl font-serif font-bold text-[#5E3A21] text-[#8C4A32]">{syncPreview.counts.classes}</p>
-                                                    <p className="text-sm font-medium text-[#5E3A21]">Classes</p>
+                                                <div className="bg-blue-50 border border-[#D0C5AE] p-2 sm:p-4 rounded-xl text-center">
+                                                    <p className="text-2xl sm:text-4xl font-serif font-bold text-[#8C4A32]">{syncPreview.counts.classes}</p>
+                                                    <p className="text-xs sm:text-sm font-medium text-[#5E3A21]">Classes</p>
                                                 </div>
-                                                <div className="bg-red-50 border border-red-100 p-4 rounded-xl text-center">
-                                                    <p className="text-4xl font-serif font-bold text-[#5E3A21] text-[#5E3A21]">{syncPreview.counts.exams}</p>
-                                                    <p className="text-sm font-medium text-[#5E3A21]">Final Exams</p>
+                                                <div className="bg-red-50 border border-red-100 p-2 sm:p-4 rounded-xl text-center">
+                                                    <p className="text-2xl sm:text-4xl font-serif font-bold text-[#5E3A21]">{syncPreview.counts.exams}</p>
+                                                    <p className="text-xs sm:text-sm font-medium text-[#5E3A21]">Final Exams</p>
                                                 </div>
-                                                <div className="bg-green-50 border border-green-100 p-4 rounded-xl text-center">
-                                                    <p className="text-4xl font-serif font-bold text-[#5E3A21] text-[#5E3A21]">{syncPreview.counts.holidays}</p>
-                                                    <p className="text-sm font-medium text-[#5E3A21]">Global Holidays</p>
+                                                <div className="bg-green-50 border border-green-100 p-2 sm:p-4 rounded-xl text-center">
+                                                    <p className="text-2xl sm:text-4xl font-serif font-bold text-[#5E3A21]">{syncPreview.counts.holidays}</p>
+                                                    <p className="text-xs sm:text-sm font-medium text-[#5E3A21]">Holidays</p>
                                                 </div>
                                             </div>
 
@@ -601,7 +601,7 @@ export default function Dashboard() {
             </div>
 
             {/* Footer */}
-            <div className="absolute bottom-0 left-0 w-full px-4 py-3 sm:p-6 md:px-8 flex justify-between items-center text-xs sm:text-sm text-[#8C5E45] z-50">
+            <div className="relative sm:absolute bottom-0 left-0 w-full px-4 py-4 sm:p-6 md:px-8 flex justify-between items-center text-xs sm:text-sm text-[#8C5E45] mt-6 sm:mt-0 z-50">
                 <div className="font-medium">&copy; {new Date().getFullYear()} Calendrify</div>
                 <div className="font-medium flex items-center gap-2">
                     Made by <a href="https://www.linkedin.com/in/aryan-anand-4aba06309/" target="_blank" rel="noopener noreferrer" className="font-bold hover:text-[#8C4A32] flex items-center gap-1">

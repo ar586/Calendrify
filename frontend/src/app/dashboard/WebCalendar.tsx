@@ -226,10 +226,13 @@ export default function WebCalendar() {
 
             {/* Calendar Grid */}
             <div className="border border-[#D0C5AE] rounded-xl overflow-hidden shadow-sm">
-                {/* Day headers */}
+                {/* Day headers - abbrev on mobile */}
                 <div className="grid grid-cols-7 bg-[#F6F5ED]">
                     {DAY_NAMES.map(d => (
-                        <div key={d} className={`py-2 text-center text-xs font-bold uppercase tracking-wider ${d === 'Sun' ? 'text-[#A44A3F]' : 'text-[#8C5E45]'}`}>{d}</div>
+                        <div key={d} className={`py-2 text-center text-[10px] sm:text-xs font-bold uppercase tracking-wider ${d === 'Sun' ? 'text-[#A44A3F]' : 'text-[#8C5E45]'}`}>
+                            <span className="sm:hidden">{d[0]}</span>
+                            <span className="hidden sm:inline">{d}</span>
+                        </div>
                     ))}
                 </div>
 
@@ -237,7 +240,7 @@ export default function WebCalendar() {
                 {weeks.map((week, wi) => (
                     <div key={wi} className="grid grid-cols-7 border-t border-[#EAE4D3]">
                         {week.map((date, di) => {
-                            if (!date) return <div key={di} className="h-20 bg-[#F6F5ED]"></div>;
+                            if (!date) return <div key={di} className="h-14 sm:h-20 bg-[#F6F5ED]"></div>;
 
                             const isToday = date.toDateString() === today.toDateString();
                             const isSelected = selectedDate?.toDateString() === date.toDateString();
@@ -258,11 +261,9 @@ export default function WebCalendar() {
                                 <button
                                     key={di}
                                     onClick={() => setSelectedDate(date)}
-                                    className={`h-20 p-1.5 text-left transition relative border-l border-[#EAE4D3] first:border-l-0 hover:bg-[#EAE4D3]/50 ${isSelected ? 'bg-[#EAE4D3] ring-2 ring-inset ring-[#8C4A32]' : ''
-                                        } ${isSunday ? 'bg-[#F2EFE9]/30' : ''}`}
+                                    className={`h-14 sm:h-20 p-1 sm:p-1.5 text-left transition relative border-l border-[#EAE4D3] first:border-l-0 hover:bg-[#EAE4D3]/50 ${isSelected ? 'bg-[#EAE4D3] ring-2 ring-inset ring-[#8C4A32]' : ''} ${isSunday ? 'bg-[#F2EFE9]/30' : ''}`}
                                 >
-                                    <span className={`text-sm font-semibold inline-flex items-center justify-center w-7 h-7 rounded-full ${isToday ? 'bg-[#8C4A32] text-white' : isSunday ? 'text-[#A44A3F]' : 'text-[#5E3A21]'
-                                        }`}>
+                                    <span className={`text-xs font-semibold inline-flex items-center justify-center w-5 h-5 sm:w-7 sm:h-7 rounded-full ${isToday ? 'bg-[#8C4A32] text-white' : isSunday ? 'text-[#A44A3F]' : 'text-[#5E3A21]'}`}>
                                         {date.getDate()}
                                     </span>
 
@@ -316,12 +317,12 @@ export default function WebCalendar() {
             {/* Selected Day Detail Panel */}
             {selectedDate && (
                 <div className="bg-[#FCFBFA] border border-[#D0C5AE] rounded-xl shadow-sm overflow-hidden">
-                    <div className="bg-[#A0522D] px-5 py-3 flex items-center justify-between">
-                        <h4 className="text-white font-bold text-sm">
-                            {DAY_NAMES[selectedDate.getDay()]}, {selectedDate.getDate()} {MONTH_NAMES[selectedDate.getMonth()]} {selectedDate.getFullYear()}
+                    <div className="bg-[#A0522D] px-3 sm:px-5 py-3 flex items-center justify-between gap-2">
+                        <h4 className="text-white font-bold text-xs sm:text-sm truncate">
+                            {DAY_NAMES[selectedDate.getDay()]}, {selectedDate.getDate()} {MONTH_NAMES[selectedDate.getMonth()].slice(0, 3)} {selectedDate.getFullYear()}
                         </h4>
-                        <div className="flex items-center gap-3">
-                            <button onClick={() => setIsAdding(!isAdding)} className="text-white/80 hover:text-white bg-[#FCFBFA]/10 hover:bg-[#FCFBFA]/20 px-2 py-1 rounded text-xs font-semibold transition">{isAdding ? 'Cancel' : '+ Add Event'}</button>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                            <button onClick={() => setIsAdding(!isAdding)} className="text-white/80 hover:text-white bg-[#FCFBFA]/10 hover:bg-[#FCFBFA]/20 px-2 py-1 rounded text-xs font-semibold transition">{isAdding ? 'Cancel' : '+ Add'}</button>
                             <button onClick={() => { setSelectedDate(null); setIsAdding(false); }} className="text-white/70 hover:text-white text-lg transition">✕</button>
                         </div>
                     </div>
