@@ -534,13 +534,13 @@ export default function Dashboard() {
                                                                     </p>
                                                                 </div>
                                                                 <div className="bg-[#EAE4D3] border border-[#D0C5AE] rounded-xl px-4 py-3 text-sm text-[#5E3A21] max-w-sm">
-                                                                    <span className="font-semibold">💡 Tip:</span> While you wait, switch to{' '}
+                                                                    <span className="font-semibold">Note:</span> While you wait, switch to{' '}
                                                                     <button
                                                                         onClick={() => setSyncMode('web')}
                                                                         className="font-bold text-[#8C4A32] underline hover:text-[#6E3A27] transition"
                                                                     >
                                                                         Web Calendar
-                                                                    </button>{' '}to explore your timetable!
+                                                                    </button>{' '}that allows you to still have a full academic calender without cluttering your google calendar!
                                                                 </div>
                                                             </div>
                                                         )}
