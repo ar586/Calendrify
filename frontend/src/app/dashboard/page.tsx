@@ -90,6 +90,7 @@ export default function Dashboard() {
     const [syncPreview, setSyncPreview] = useState<any>(null);
     const [loadingSync, setLoadingSync] = useState(false);
     const [loadingCategory, setLoadingCategory] = useState<string | null>(null);
+    const [elapsedTime, setElapsedTime] = useState(0);
     const [syncMode, setSyncMode] = useState<'web' | 'gcal'>('web');
     const [webCalKey, setWebCalKey] = useState(0);
     // per-event reminder: Map<eventId, minutes | null>
@@ -124,6 +125,15 @@ export default function Dashboard() {
     };
 
     const router = useRouter();
+
+    // Elapsed time counter during injection
+    useEffect(() => {
+        if (loadingCategory !== null) {
+            setElapsedTime(0);
+            const interval = setInterval(() => setElapsedTime(t => t + 1), 1000);
+            return () => clearInterval(interval);
+        }
+    }, [loadingCategory]);
 
     useEffect(() => {
         const token = localStorage.getItem('calendrify_token');
@@ -508,36 +518,52 @@ export default function Dashboard() {
 
                                                 return (
                                                     <div className="flex flex-col gap-3">
-                                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                                            <button
-                                                                onClick={() => action('CLASS')}
-                                                                disabled={loadingCategory !== null}
-                                                                className={`px-4 py-3 font-bold rounded-xl shadow transition text-sm flex flex-col items-center gap-1 ${loadingCategory === null ? 'bg-[#8C4A32] text-white hover:bg-[#6E3A27] active:scale-95' : 'bg-[#EAE4D3] text-[#8C5E45] cursor-not-allowed'}`}
-                                                            >
-                                                                {loadingCategory === 'CLASS' ? 'Injecting...' : 'Inject Classes'}
-                                                            </button>
-                                                            <button
-                                                                onClick={() => action('EXAM')}
-                                                                disabled={loadingCategory !== null}
-                                                                className={`px-4 py-3 font-bold rounded-xl shadow transition text-sm flex flex-col items-center gap-1 ${loadingCategory === null ? 'bg-[#8C4A32] text-white hover:bg-[#6E3A27] active:scale-95' : 'bg-[#EAE4D3] text-[#8C5E45] cursor-not-allowed'}`}
-                                                            >
-                                                                {loadingCategory === 'EXAM' ? 'Injecting...' : 'Inject Exams'}
-                                                            </button>
-                                                            <button
-                                                                onClick={() => action('GLOBAL')}
-                                                                disabled={loadingCategory !== null}
-                                                                className={`px-4 py-3 font-bold rounded-xl shadow transition text-sm flex flex-col items-center gap-1 ${loadingCategory === null ? 'bg-[#8C4A32] text-white hover:bg-[#6E3A27] active:scale-95' : 'bg-[#EAE4D3] text-[#8C5E45] cursor-not-allowed'}`}
-                                                            >
-                                                                {loadingCategory === 'GLOBAL' ? 'Injecting...' : 'Inject Holidays'}
-                                                            </button>
-                                                        </div>
-                                                        <button
-                                                            onClick={() => action('ALL')}
-                                                            disabled={loadingCategory !== null}
-                                                            className={`w-full px-6 py-4 font-bold rounded-xl shadow transition text-xl font-serif flex justify-center items-center gap-2 ${loadingCategory === null ? 'bg-[#5E3A21] text-[#F6F5ED] hover:bg-[#4A2D1A] active:scale-95' : 'bg-[#EAE4D3] text-[#8C5E45] cursor-not-allowed'}`}
-                                                        >
-                                                            {loadingCategory === 'ALL' ? 'Injecting...' : 'Inject All Events'}
-                                                        </button>
+                                                        {/* Loading panel shown during injection */}
+                                                        {loadingCategory !== null && (
+                                                            <div className="bg-[#FFF8F0] border border-[#D0C5AE] rounded-2xl p-6 flex flex-col items-center gap-4 text-center shadow-sm">
+                                                                <div className="w-12 h-12 border-4 border-[#8C4A32] border-t-transparent rounded-full animate-spin" />
+                                                                <div>
+                                                                    <p className="font-bold text-[#5A2C1A] text-lg font-serif">
+                                                                        Injecting into Google Calendar...
+                                                                    </p>
+                                                                    <p className="text-[#8C5E45] text-sm mt-1">
+                                                                        This can take up to 1–2 minutes. Please keep this tab open.
+                                                                    </p>
+                                                                    <p className="text-3xl font-mono font-bold text-[#8C4A32] mt-3">
+                                                                        {Math.floor(elapsedTime / 60).toString().padStart(2, '0')}:{(elapsedTime % 60).toString().padStart(2, '0')}
+                                                                    </p>
+                                                                </div>
+                                                                <div className="bg-[#EAE4D3] border border-[#D0C5AE] rounded-xl px-4 py-3 text-sm text-[#5E3A21] max-w-sm">
+                                                                    <span className="font-semibold">💡 Tip:</span> While you wait, switch to{' '}
+                                                                    <button
+                                                                        onClick={() => setSyncMode('web')}
+                                                                        className="font-bold text-[#8C4A32] underline hover:text-[#6E3A27] transition"
+                                                                    >
+                                                                        Web Calendar
+                                                                    </button>{' '}to explore your timetable!
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Buttons — hidden while injecting */}
+                                                        {loadingCategory === null && (
+                                                            <>
+                                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                                    <button onClick={() => action('CLASS')} className="px-4 py-3 font-bold rounded-xl shadow transition text-sm bg-[#8C4A32] text-white hover:bg-[#6E3A27] active:scale-95">
+                                                                        Inject Classes
+                                                                    </button>
+                                                                    <button onClick={() => action('EXAM')} className="px-4 py-3 font-bold rounded-xl shadow transition text-sm bg-[#8C4A32] text-white hover:bg-[#6E3A27] active:scale-95">
+                                                                        Inject Exams
+                                                                    </button>
+                                                                    <button onClick={() => action('GLOBAL')} className="px-4 py-3 font-bold rounded-xl shadow transition text-sm bg-[#8C4A32] text-white hover:bg-[#6E3A27] active:scale-95">
+                                                                        Inject Holidays
+                                                                    </button>
+                                                                </div>
+                                                                <button onClick={() => action('ALL')} className="w-full px-6 py-4 font-bold rounded-xl shadow transition text-xl font-serif flex justify-center items-center gap-2 bg-[#5E3A21] text-[#F6F5ED] hover:bg-[#4A2D1A] active:scale-95">
+                                                                    Inject All Events
+                                                                </button>
+                                                            </>
+                                                        )}
                                                     </div>
                                                 );
                                             })()}
