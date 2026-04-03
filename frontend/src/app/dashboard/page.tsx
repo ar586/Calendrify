@@ -611,9 +611,9 @@ export default function Dashboard() {
                                                                 <button onClick={() => action('ALL')} className="w-full px-6 py-4 font-bold rounded-xl shadow transition text-xl font-serif flex justify-center items-center gap-2 bg-[#5E3A21] text-[#F6F5ED] hover:bg-[#4A2D1A] active:scale-95">
                                                                     Inject All Events
                                                                 </button>
-                                                                <button onClick={desyncAllEvents} className="w-full px-6 py-4 font-bold rounded-xl shadow transition text-xl font-serif flex justify-center items-center gap-2 border-2 border-[#8C4A32] text-[#8C4A32] hover:bg-[#8C4A32] hover:text-[#F6F5ED] active:scale-95 mt-3">
+                                                                {/* <button onClick={desyncAllEvents} className="w-full px-6 py-4 font-bold rounded-xl shadow transition text-xl font-serif flex justify-center items-center gap-2 border-2 border-[#8C4A32] text-[#8C4A32] hover:bg-[#8C4A32] hover:text-[#F6F5ED] active:scale-95 mt-3">
                                                                     Desync All Events
-                                                                </button>
+                                                                </button> */}
                                                             </>
                                                         )}
                                                     </div>
