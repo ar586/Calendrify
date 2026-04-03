@@ -403,8 +403,8 @@ export default function WebCalendar() {
                                         {/* Remove button */}
                                         <button
                                             onClick={() => removeEvent(ev.mappingId)}
-                                            className="text-[#8C5E45] hover:text-[#A44A3F] opacity-0 group-hover:opacity-100 transition text-sm font-bold self-center"
-                                        >✕</button>
+                                            className="text-[#8C5E45] hover:text-white hover:bg-[#A44A3F] border border-[#8C5E45] hover:border-[#A44A3F] transition text-xs font-bold px-2 py-1 rounded-lg self-center"
+                                        >Desync</button>
                                     </div>
                                 );
                             })}

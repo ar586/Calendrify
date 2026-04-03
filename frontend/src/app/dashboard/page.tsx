@@ -156,6 +156,20 @@ export default function Dashboard() {
                     // Force profile editing if critical info missing
                     if (!data.user.profile?.degree || !data.user.profile?.specialization) {
                         setIsEditing(true);
+                    } else if (data.user.profile?.semester && data.user.profile?.section) {
+                        setLoadingSync(true);
+                        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sync/preview`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        })
+                            .then(r => r.json())
+                            .then(previewData => {
+                                setSyncPreview(previewData);
+                                if (previewData.events) {
+                                    setSelectedEventIds(new Set(previewData.events.map((e: any) => e._id)));
+                                }
+                                setLoadingSync(false);
+                            })
+                            .catch(() => setLoadingSync(false));
                     }
                 }
             })
@@ -205,7 +219,7 @@ export default function Dashboard() {
         const idsForType = syncPreview.events
             .filter((e: any) => (type === 'ALL' || e.type === type) && selectedEventIds.has(e._id))
             .map((e: any) => e._id);
-        if (idsForType.length === 0) return alert('No checked events in this category to inject.');
+        if (idsForType.length === 0) return;
         setLoadingCategory(type);
         const token = localStorage.getItem('calendrify_token');
         try {
@@ -220,7 +234,7 @@ export default function Dashboard() {
                 })
             });
             const data = await res.json();
-            alert(data.message || data.error);
+            console.log(data.message || data.error);
         } catch (error) {
             console.error('Sync failed');
         }
@@ -232,7 +246,7 @@ export default function Dashboard() {
         const idsForType = syncPreview.events
             .filter((e: any) => (type === 'ALL' || e.type === type) && selectedEventIds.has(e._id))
             .map((e: any) => e._id);
-        if (idsForType.length === 0) return alert('No events selected for this category.');
+        if (idsForType.length === 0) return;
         setLoadingCategory(type);
         const token = localStorage.getItem('calendrify_token');
         try {
@@ -242,10 +256,37 @@ export default function Dashboard() {
                 body: JSON.stringify({ selectedEventIds: idsForType })
             });
             const data = await res.json();
-            alert(data.message || data.error);
+            console.log(data.message || data.error);
             setWebCalKey(k => k + 1); // refresh calendar
         } catch (error) {
             console.error('Web save failed');
+        }
+        setLoadingCategory(null);
+    };
+
+    const desyncAllEvents = async () => {
+        if (!confirm(`Are you sure you want to remove all events from your ${syncMode === 'web' ? 'Web' : 'Google'} Calendar?`)) return;
+        setLoadingCategory('DESYNC_ALL');
+        const token = localStorage.getItem('calendrify_token');
+        try {
+            if (syncMode === 'web') {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sync/web-events/all`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+                console.log(data.message || data.error);
+                setWebCalKey(k => k + 1);
+            } else {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sync/gcal-events/all`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+                console.log(data.message || data.error);
+            }
+        } catch (error) {
+            console.error('Desync failed', error);
         }
         setLoadingCategory(null);
     };
@@ -524,24 +565,32 @@ export default function Dashboard() {
                                                                 <div className="w-12 h-12 border-4 border-[#8C4A32] border-t-transparent rounded-full animate-spin" />
                                                                 <div>
                                                                     <p className="font-bold text-[#5A2C1A] text-lg font-serif">
-                                                                        Injecting into Google Calendar...
+                                                                        {loadingCategory === 'DESYNC_ALL'
+                                                                            ? `Removing from ${syncMode === 'web' ? 'Web' : 'Google'} Calendar...`
+                                                                            : `Injecting into ${syncMode === 'web' ? 'Web' : 'Google'} Calendar...`}
                                                                     </p>
-                                                                    <p className="text-[#8C5E45] text-sm mt-1">
-                                                                        This can take up to 1–2 minutes. Please keep this tab open.
-                                                                    </p>
-                                                                    <p className="text-3xl font-mono font-bold text-[#8C4A32] mt-3">
-                                                                        {Math.floor(elapsedTime / 60).toString().padStart(2, '0')}:{(elapsedTime % 60).toString().padStart(2, '0')}
-                                                                    </p>
+                                                                    {syncMode === 'gcal' && (
+                                                                        <>
+                                                                            <p className="text-[#8C5E45] text-sm mt-1">
+                                                                                This can take up to 1–2 minutes. Please keep this tab open.
+                                                                            </p>
+                                                                            <p className="text-3xl font-mono font-bold text-[#8C4A32] mt-3">
+                                                                                {Math.floor(elapsedTime / 60).toString().padStart(2, '0')}:{(elapsedTime % 60).toString().padStart(2, '0')}
+                                                                            </p>
+                                                                        </>
+                                                                    )}
                                                                 </div>
-                                                                <div className="bg-[#EAE4D3] border border-[#D0C5AE] rounded-xl px-4 py-3 text-sm text-[#5E3A21] max-w-sm">
-                                                                    <span className="font-semibold">Note:</span> While you wait, switch to{' '}
-                                                                    <button
-                                                                        onClick={() => setSyncMode('web')}
-                                                                        className="font-bold text-[#8C4A32] underline hover:text-[#6E3A27] transition"
-                                                                    >
-                                                                        Web Calendar
-                                                                    </button>{' '}that allows you to still have a full academic calender without cluttering your google calendar!
-                                                                </div>
+                                                                {syncMode === 'gcal' && (
+                                                                    <div className="bg-[#EAE4D3] border border-[#D0C5AE] rounded-xl px-4 py-3 text-sm text-[#5E3A21] max-w-sm">
+                                                                        <span className="font-semibold">Note:</span> While you wait, switch to{' '}
+                                                                        <button
+                                                                            onClick={() => setSyncMode('web')}
+                                                                            className="font-bold text-[#8C4A32] underline hover:text-[#6E3A27] transition"
+                                                                        >
+                                                                            Web Calendar
+                                                                        </button>{' '}that allows you to still have a full academic calender without cluttering your google calendar!
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         )}
 
@@ -561,6 +610,9 @@ export default function Dashboard() {
                                                                 </div>
                                                                 <button onClick={() => action('ALL')} className="w-full px-6 py-4 font-bold rounded-xl shadow transition text-xl font-serif flex justify-center items-center gap-2 bg-[#5E3A21] text-[#F6F5ED] hover:bg-[#4A2D1A] active:scale-95">
                                                                     Inject All Events
+                                                                </button>
+                                                                <button onClick={desyncAllEvents} className="w-full px-6 py-4 font-bold rounded-xl shadow transition text-xl font-serif flex justify-center items-center gap-2 border-2 border-[#8C4A32] text-[#8C4A32] hover:bg-[#8C4A32] hover:text-[#F6F5ED] active:scale-95 mt-3">
+                                                                    Desync All Events
                                                                 </button>
                                                             </>
                                                         )}
@@ -606,12 +658,22 @@ export default function Dashboard() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-[#5E3A21] mb-1">Semester (e.g. 2)</label>
-                                    <input type="text" value={formData.semester} onChange={e => setFormData({ ...formData, semester: e.target.value })} className="w-full p-3 border border-[#D0C5AE] rounded-xl focus:ring-2 focus:ring-[#8C4A32] outline-none bg-[#FCFBFA] text-[#5E3A21] font-medium shadow-sm transition hover:border-[#8C4A32] placeholder-gray-400" placeholder="Enter your current semester" />
+                                    <label className="block text-sm font-semibold text-[#5E3A21] mb-1">Semester</label>
+                                    <CustomSelect
+                                        value={formData.semester}
+                                        onChange={val => setFormData({ ...formData, semester: val })}
+                                        options={['1', '2', '3', '4', '5', '6', '7', '8'].map(s => ({ label: `Semester ${s}`, value: s }))}
+                                        placeholder="Select your current semester"
+                                    />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-[#5E3A21] mb-1">Section (e.g. 2)</label>
-                                    <input type="text" value={formData.section} onChange={e => setFormData({ ...formData, section: e.target.value })} className="w-full p-3 border border-[#D0C5AE] rounded-xl focus:ring-2 focus:ring-[#8C4A32] outline-none bg-[#FCFBFA] text-[#5E3A21] font-medium shadow-sm transition hover:border-[#8C4A32] placeholder-gray-400" placeholder="Enter your current section" />
+                                    <label className="block text-sm font-semibold text-[#5E3A21] mb-1">Section</label>
+                                    <CustomSelect
+                                        value={formData.section}
+                                        onChange={val => setFormData({ ...formData, section: val })}
+                                        options={['1', '2', '3'].map(s => ({ label: `Section ${s}`, value: s }))}
+                                        placeholder="Select your current section"
+                                    />
                                 </div>
                             </div>
                             <div className="mt-8 flex justify-end gap-3">

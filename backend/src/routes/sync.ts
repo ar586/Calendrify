@@ -237,6 +237,55 @@ router.post('/execute', authMiddleware, async (req: any, res) => {
     }
 });
 
+// ============ GOOGLE CALENDAR DESYNC ROUTES ============
+
+router.delete('/gcal-events/all', authMiddleware, async (req: any, res) => {
+    const user = req.user;
+    if (!user.tokens.refreshToken) {
+        return res.status(401).json({ error: 'Google Calendar access not authorized. Relogin required.' });
+    }
+
+    const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET
+    );
+    oauth2Client.setCredentials({
+        access_token: user.tokens.accessToken,
+        refresh_token: user.tokens.refreshToken
+    });
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+    try {
+        const mappings = await UserEventMapping.find({ userId: user._id, status: 'SYNCED' });
+        let deletedCount = 0;
+
+        // Collect all calendars for the user to optimize iteration
+        const list = await calendar.calendarList.list();
+        const calIds = list.data.items?.filter((c: any) => c.summary?.startsWith('Calendrify - ')).map((c: any) => c.id!) || [];
+
+        for (const mapping of mappings) {
+            if (mapping.googleCalendarEventId) {
+                // We need to find which calendar this was inserted into. Since we don't store it, we try hitting them
+                for (const calId of calIds) {
+                    try {
+                        await calendar.events.delete({
+                            calendarId: calId,
+                            eventId: mapping.googleCalendarEventId
+                        });
+                        break; // Deletion successful
+                    } catch (e: any) {
+                        // ignore 404s, it means the event is in another calendar
+                    }
+                }
+            }
+        }
+        await UserEventMapping.deleteMany({ userId: user._id, status: 'SYNCED' });
+        res.json({ message: `Successfully desynced and removed Google Calendar events!` });
+    } catch (error: any) {
+        res.status(500).json({ error: `Failed to remove Google Calendar events: ${error?.message}` });
+    }
+});
+
 // ============ WEB CALENDAR MODE ROUTES ============
 
 // Save events to web calendar (no Google API needed)
@@ -316,6 +365,16 @@ router.post('/custom-events', authMiddleware, async (req: any, res) => {
         res.json({ message: 'Custom event added!', event: newEvent });
     } catch (error: any) {
         res.status(500).json({ error: `Failed to add custom event: ${error?.message}` });
+    }
+});
+
+// Remove all events from web calendar
+router.delete('/web-events/all', authMiddleware, async (req: any, res) => {
+    try {
+        await UserEventMapping.deleteMany({ userId: req.user._id, status: { $in: ['WEB'] } });
+        res.json({ message: 'All events removed from web calendar.' });
+    } catch (error: any) {
+        res.status(500).json({ error: `Failed to remove all events: ${error?.message}` });
     }
 });
 
