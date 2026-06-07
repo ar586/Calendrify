@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: calendrify-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    region: oregon # or frankfurt, ohio, singapore
+    plan: free # Change to starter or higher if you need more resources
+    branch: main
+    envVars:
+      # Render will automatically map the exposed port in your Dockerfile
+      - key: MONGODB_URI
+        sync: false # Set this securely in the Render Dashboard
+      - key: JWT_SECRET
+        sync: false # Set this securely in the Render Dashboard
+      - key: GOOGLE_CLIENT_ID
+        sync: false # Set this securely in the Render Dashboard
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false # Set this securely in the Render Dashboard
+      - key: GOOGLE_REDIRECT_URI
+        value: https://calendrify-backend.devaryan.tech/api/auth/google/callback
+      - key: FRONTEND_URL
+        value: https://your-frontend-domain.com # Update with your frontend URL
