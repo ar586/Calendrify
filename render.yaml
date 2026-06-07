@@ -19,6 +19,6 @@ services:
       - key: GOOGLE_CLIENT_SECRET
         sync: false
       - key: GOOGLE_REDIRECT_URI
-        value: https://calendrify-backend.devaryan.tech/api/auth/google/callback
+        value: https://calendrify-backend.onrender.com/api/auth/google/callback
       - key: FRONTEND_URL
         value: https://calendrify-delta.vercel.app
